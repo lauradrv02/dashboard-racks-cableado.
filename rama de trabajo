@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RackScope IA — Cableado Estructurado</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1.25rem 2rem;
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-primary { background: white; color: var(--primary-dark); }
+  .btn-primary:hover { background: #f1f5f9; }
+  .btn-ghost { background: rgba(255,255,255,0.15); color: white; backdrop-filter: blur(10px); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-lg { padding: 0.85rem 1.5rem; font-size: 1rem; }
+  
+  .save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #d1fae5;
+  }
+  .save-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* CONTAINER */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--card);
+    padding: 0.4rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-light);
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .tab:hover { background: #f1f5f9; color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: var(--shadow);
+  }
+  
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .card-subtitle {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+  }
+  
+  /* TAB CONTENT */
+  .tab-content { display: none; animation: fadeIn 0.3s; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* DASHBOARD KPIs */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .kpi {
+    background: var(--card);
+    padding: 1.25rem;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .kpi:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .kpi-label {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+  }
+  .kpi-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .kpi-trend {
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    color: var(--success);
+  }
+  .kpi-blue .kpi-icon { background: #dbeafe; color: var(--info); }
+  .kpi-green .kpi-icon { background: #d1fae5; color: var(--success); }
+  .kpi-yellow .kpi-icon { background: #fef3c7; color: var(--warning); }
+  .kpi-purple .kpi-icon { background: #e0e7ff; color: var(--primary); }
+  
+  /* RACK VIEW */
+  .rack-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .rack-layout { grid-template-columns: 1fr; }
+  }
+  .rack-visual {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 14px;
+    padding: 1.5rem;
+    color: white;
+    min-height: 500px;
+  }
+  .rack-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .rack-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .rack-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+  }
+  .rack-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0.8;
+  }
+  .rack-units {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rack-unit {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    min-height: 28px;
+  }
+  .u-number {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+    padding-right: 0.5rem;
+  }
+  .u-slot {
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .u-slot:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--primary-light);
+  }
+  .u-slot.occupied {
+    background: linear-gradient(90deg, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0.1) 100%);
+    border: 1px solid rgba(99,102,241,0.4);
+    border-style: solid;
+  }
+  .u-slot.maintenance {
+    background: linear-gradient(90deg, rgba(245,158,11,0.3) 0%, rgba(245,158,11,0.1) 100%);
+    border: 1px solid rgba(245,158,11,0.4);
+  }
+  .u-slot.pending {
+    background: linear-gradient(90deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%);
+    border: 1px solid rgba(59,130,246,0.4);
+  }
+  .u-slot-name {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .u-slot-type {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+  .u-slot-empty {
+    color: rgba(255,255,255,0.3);
+    font-style: italic;
+  }
+  
+  /* RACK LEGEND */
+  .rack-legend {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+    transition: background 0.2s;
+  }
+  .legend-item:hover { background: #f8fafc; }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+  .legend-dot.free { background: #94a3b8; }
+  .legend-dot.active { background: var(--primary); }
+  .legend-dot.maintenance { background: var(--warning); }
+  .legend-dot.pending { background: var(--info); }
+  .legend-label { font-size: 0.9rem; flex: 1; }
+  .legend-count { font-weight: 700; color: var(--text-light); }
+  
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  .form-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    font-weight: 400;
+  }
+  .form-control {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background: white;
+    font-family: inherit;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  select.form-control { cursor: pointer; }
+  
+  /* TABLE */
+  .table-wrapper { overflow-x: auto; border-radius: 10px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  thead {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  }
+  th {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: #f8fafc; }
+  
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-active { background: #d1fae5; color: #065f46; }
+  .badge-maintenance { background: #fef3c7; color: #92400e; }
+  .badge-pending { background: #dbeafe; color: #1e40af; }
+  .badge-confirmed { background: #d1fae5; color: #065f46; }
+  .badge-inferred { background: #e0e7ff; color: #3730a3; }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  
+  /* ACTION BUTTONS */
+  .action-btn {
+    padding: 0.35rem 0.6rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    margin-right: 0.25rem;
+  }
+  .action-edit { background: #dbeafe; color: var(--info); }
+  .action-edit:hover { background: var(--info); color: white; }
+  .action-delete { background: #fee2e2; color: var(--danger); }
+  .action-delete:hover { background: var(--danger); color: white; }
+  
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+  .modal {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .modal-title { font-size: 1.3rem; font-weight: 700; }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+  .modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border);
+  }
+  
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .toast {
+    background: var(--card);
+    padding: 0.9rem 1.2rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 250px;
+    animation: slideIn 0.3s;
+    border-left: 4px solid var(--success);
+  }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    padding-bottom: 1.25rem;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: -1.85rem;
+    top: 0.2rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+  .timeline-content {
+    background: #f8fafc;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border-left: 3px solid var(--primary);
+  }
+  .timeline-time {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 0.2rem;
+  }
+  .timeline-text { font-size: 0.9rem; }
+  
+  /* LAYERS */
+  .layers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .layer-card {
+    background: linear-gradient(135deg, var(--card) 0%, #f8fafc 100%);
+    padding: 1.5rem;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .layer-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .layer-number {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 36px;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .layer-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .layer-desc {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  
+  /* WELCOME */
+  .welcome-banner {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::before {
+    content: '';
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .welcome-banner::after {
+    content: '';
+    position: absolute;
+    right: 50px;
+    bottom: -80px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .welcome-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+  .welcome-subtitle {
+    opacity: 0.95;
+    font-size: 1rem;
+    position: relative;
+    max-width: 600px;
+  }
+  
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-light);
+  }
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  .empty-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  
+  /* SEARCH */
+  .search-bar {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .search-bar input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+  }
+  
+  /* TOOLTIP */
+  [data-tooltip] {
+    position: relative;
+    cursor: help;
+  }
+  [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon">🔌</div>
+      <div>
+        <div>RackScope IA</div>
+        <div style="font-size: 0.75rem; opacity: 0.85; font-weight: 400;">Cableado Estructurado Inteligente</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="save-indicator"><span class="save-dot"></span> Guardado automático</span>
+      <button class="btn btn-ghost" onclick="saveLocal()">💾 Guardar</button>
+      <button class="btn btn-ghost" onclick="loadLocal()">📂 Cargar</button>
+      <button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- WELCOME -->
+  <div class="welcome-banner">
+    <div class="welcome-title">¡Bienvenido a RackScope IA! 👋</div>
+    <div class="welcome-subtitle">Gestiona tus racks, cableado y servicios de forma visual e intuitiva. Tres capas, una sola fuente de verdad.</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard', this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('rack', this)">🗄️ Vista de Rack</button>
+    <button class="tab" onclick="switchTab('inventory', this)">📦 Inventario</button>
+    <button class="tab" onclick="switchTab('mapping', this)">🔗 Mapeo Lógico</button>
+    <button class="tab" onclick="switchTab('log', this)">📝 Bitácora</button>
+    <button class="tab" onclick="switchTab('guide', this)">📚 Guía</button>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="dashboard" class="tab-content active">
+    <div class="kpi-grid">
+      <div class="kpi kpi-blue">
+        <div class="kpi-icon">🗄️</div>
+        <div class="kpi-label">Racks Totales</div>
+        <div class="kpi-value" id="kpi-racks">0</div>
+        <div class="kpi-trend">Infraestructura activa</div>
+      </div>
+      <div class="kpi kpi-purple">
+        <div class="kpi-icon">💻</div>
+        <div class="kpi-label">Equipos Instalados</div>
+        <div class="kpi-value" id="kpi-equipos">0</div>
+        <div class="kpi-trend">En inventario</div>
+      </div>
+      <div class="kpi kpi-green">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-label">Operativos</div>
+        <div class="kpi-value" id="kpi-activos">0</div>
+        <div class="kpi-trend">Estado activo</div>
+      </div>
+      <div class="kpi kpi-yellow">
+        <div class="kpi-icon">🔧</div>
+        <div class="kpi-label">En Mantenimiento</div>
+        <div class="kpi-value" id="kpi-mant">0</div>
+        <div class="kpi-trend">Requieren atención</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📈 Resumen Rápido</div>
+          <div class="card-subtitle">Estado general de tu infraestructura</div>
+        </div>
+      </div>
+      <div id="quick-summary">
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <div class="empty-title">Aún no hay datos</div>
+          <div>Comienza agregando tu primer equipo en la pestaña "Vista de Rack"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RACK VIEW TAB -->
+  <div id="rack" class="tab-content">
+    <div class="rack-layout">
+      <div class="rack-visual">
+        <div class="rack-header">
+          <div class="rack-title">🗄️ Rack Principal</div>
+          <div class="rack-stats">
+            <div class="rack-stat">📏 <span id="rack-used">0</span>/<span id="rack-total">42</span> U</div>
+            <div class="rack-stat">📊 <span id="rack-percent">0</span>%</div>
+          </div>
+        </div>
+        <div class="rack-units" id="rack-units"></div>
+      </div>
+
+      <div>
+        <div class="rack-legend">
+          <h3 style="margin-bottom: 1rem; font-size: 1rem;">🎨 Leyenda</h3>
+          <div class="legend-item">
+            <div class="legend-dot free"></div>
+            <div class="legend-label">Libre</div>
+            <div class="legend-count" id="legend-free">42</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot active"></div>
+            <div class="legend-label">Activo</div>
+            <div class="legend-count" id="legend-active">0</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot maintenance"></div>
+            <div class="legend-label">Mantenimiento</div>
+            <div class="legend-count" id="legend-maint">0</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot pending"></div>
+            <div class="legend-label">Pendiente</div>
+            <div class="legend-count" id="legend-pending">0</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem; justify-content: center;" onclick="openModal()">
+          ➕ Agregar / Modificar Equipo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY TAB -->
+  <div id="inventory" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📦 Inventario de Equipos</div>
+          <div class="card-subtitle">Todos los dispositivos instalados en tus racks</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">➕ Nuevo Equipo</button>
+      </div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-inventory" placeholder="Buscar por nombre, tipo o ubicación..." oninput="renderInventory()">
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Equipo</th>
+              <th>Tipo</th>
+              <th>Ubicación (U)</th>
+              <th>Altura</th>
+              <th>Estado</th>
+              <th>Circuito</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPPING TAB -->
+  <div id="mapping" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔗 Interfaces y Mapeo Lógico</div>
+          <div class="card-subtitle">Relaciona puertos con servicios y destinos</div>
+        </div>
+        <button class="btn btn-primary" onclick="openMappingModal()">➕ Nuevo Mapeo</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Puerto</th>
+              <th>Equipo</th>
+              <th>Servicio / Destino</th>
+              <th>VLAN</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="mapping-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="log" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📝 Bitácora de Cambios</div>
+          <div class="card-subtitle">Historial completo de acciones realizadas</div>
+        </div>
+        <button class="btn btn-secondary" onclick="clearLog()">🗑️ Limpiar</button>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+  <!-- GUIDE TAB -->
+  <div id="guide" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📚 Conceptos y Capas</div>
+          <div class="card-subtitle">Base técnica: tres capas, una fuente de verdad</div>
+        </div>
+      </div>
+      <div class="layers-grid">
+        <div class="layer-card">
+          <div class="layer-number">01</div>
+          <div class="layer-title">🔌 Capa Física</div>
+          <div class="layer-desc">Sede → Cuarto → Rack → Posición U → Equipo → Puerto → Cable → Patch Panel. Representa el mundo tangible de tu infraestructura.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-number">02</div>
+          <div class="layer-title">🌐 Capa Lógica</div>
+          <div class="layer-desc">Interfaz → VLAN/Red → Servicio → Dependencia → Criticidad del servicio. Cómo se relacionan los datos y servicios.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-number">03</div>
+          <div class="layer-title">⚡ Capa Eléctrica</div>
+          <div class="layer-desc">Fuente → Toma PDU → Circuito → Tablero/UPS → Redundancia A/B. Garantiza la energía y continuidad operativa.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🚀 Historias Mínimas</div>
+          <div class="card-subtitle">Casos de uso principales</div>
+        </div>
+      </div>
+      <div class="layers-grid">
+        <div class="layer-card">
+          <div class="layer-title">👁️ Ver Layout por U</div>
+          <div class="layer-desc">Inspecciona qué espacios están libres, ocupados o reservados en tiempo real con la vista visual del rack.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-title">✏️ Modificación Total</div>
+          <div class="layer-desc">Agrega, modifica o elimina equipos directamente. La bitácora se actualiza automáticamente.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-title">💾 Persistencia Local</div>
+          <div class="layer-desc">Todos los cambios se guardan automáticamente en tu navegador. Sin servidores, sin nube, 100% privado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL EQUIPO -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">➕ Agregar Equipo</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <form id="device-form" onsubmit="saveDevice(event)">
+      <input type="hidden" id="device-id">
+      <div class="form-group">
+        <label>Nombre del Equipo *</label>
+        <input type="text" class="form-control" id="device-name" required placeholder="Ej: Switch-Core-01">
+        <div class="form-hint">Identificador único y descriptivo</div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo de Dispositivo *</label>
+          <select class="form-control" id="device-type" required>
+            <option value="">Seleccionar...</option>
+            <option value="Switch">🔀 Switch</option>
+            <option value="Patch Panel">🔌 Patch Panel</option>
+            <option value="Organizador">📋 Organizador Horizontal</option>
+            <option value="UPS">🔋 UPS</option>
+            <option value="Servidor">💻 Servidor</option>
+            <option value="Reserva">📦 Reserva de Espacio</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Unidad U (Posición) *</label>
+          <input type="number" class="form-control" id="device-u" min="1" max="42" required placeholder="1-42">
+          <div class="form-hint">Posición inferior del equipo</div>
+        </div>
+        <div class="form-group">
+          <label>Altura (Unidades U) *</label>
+          <input type="number" class="form-control" id="device-height" min="1" max="42" value="1" required>
+          <div class="form-hint">Cuántas U ocupa</div>
+        </div>
+        <div class="form-group">
+          <label>Estado Operativo</label>
+          <select class="form-control" id="device-status">
+            <option value="active">✅ Activo</option>
+            <option value="maintenance">🔧 Mantenimiento</option>
+            <option value="pending">⏳ Pendiente</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Circuito / Energía (PDU)</label>
+          <input type="text" class="form-control" id="device-circuit" placeholder="Ej: PDU-A, Circuito-1">
+        </div>
+        <div class="form-group">
+          <label>Servicio / Función Lógica</label>
+          <input type="text" class="form-control" id="device-service" placeholder="Ej: Red corporativa">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Estado del Dato</label>
+        <select class="form-control" id="device-validation">
+          <option value="CONFIRMADO">✅ Confirmado</option>
+          <option value="INFERIDO">💡 Inferido</option>
+          <option value="PENDIENTE">⏳ Pendiente</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">💾 Guardar Dispositivo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL MAPEO -->
+<div class="modal-overlay" id="mapping-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Nuevo Mapeo Lógico</div>
+      <button class="modal-close" onclick="closeMappingModal()">×</button>
+    </div>
+    <form id="mapping-form" onsubmit="saveMapping(event)">
+      <input type="hidden" id="mapping-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Equipo *</label>
+          <select class="form-control" id="mapping-device" required></select>
+        </div>
+        <div class="form-group">
+          <label>Puerto *</label>
+          <input type="text" class="form-control" id="mapping-port" required placeholder="Ej: Gi0/1">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Servicio / Destino *</label>
+          <input type="text" class="form-control" id="mapping-service" required placeholder="Ej: VLAN 10 - Ventas">
+        </div>
+        <div class="form-group">
+          <label>VLAN</label>
+          <input type="text" class="form-control" id="mapping-vlan" placeholder="Ej: VLAN 10">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeMappingModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // STATE
+  let devices = JSON.parse(localStorage.getItem('rackscope_devices') || '[]');
+  let mappings = JSON.parse(localStorage.getItem('rackscope_mappings') || '[]');
+  let log = JSON.parse(localStorage.getItem('rackscope_log') || '[]');
+  const RACK_SIZE = 42;
+
+  // TABS
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+  }
+
+  // TOAST
+  function toast(msg, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+    t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    container.appendChild(t);
+    setTimeout(() => {
+      t.style.animation = 'slideIn 0.3s reverse';
+      setTimeout(() => t.remove(), 300);
+    }, 3000);
+  }
+
+  // LOG
+  function addLog(action) {
+    log.unshift({
+      time: new Date().toLocaleString('es-MX'),
+      action: action
+    });
+    if (log.length > 50) log = log.slice(0, 50);
+    localStorage.setItem('rackscope_log', JSON.stringify(log));
+    renderLog();
+  }
+
+  function renderLog() {
+    const container = document.getElementById('timeline');
+    if (log.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Sin cambios registrados</div><div>Tus acciones aparecerán aquí</div></div>`;
+      return;
+    }
+    container.innerHTML = log.map(l => `
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-time">${l.time}</div>
+          <div class="timeline-text">${l.action}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function clearLog() {
+    if (confirm('¿Limpiar toda la bitácora?')) {
+      log = [];
+      localStorage.setItem('rackscope_log', JSON.stringify(log));
+      renderLog();
+      toast('Bitácora limpiada');
+    }
+  }
+
+  // RACK VIEW
+  function renderRack() {
+    const units = document.getElementById('rack-units');
+    let html = '';
+    const occupied = {};
+    devices.forEach(d => {
+      for (let i = 0; i < d.height; i++) {
+        occupied[d.u + i] = d;
+      }
+    });
+    
+    for (let u = RACK_SIZE; u >= 1; u--) {
+      const dev = occupied[u];
+      if (dev && dev.u === u) {
+        const statusClass = dev.status === 'maintenance' ? 'maintenance' : dev.status === 'pending' ? 'pending' : 'occupied';
+        const icons = { Switch: '🔀', 'Patch Panel': '🔌', Organizador: '📋', UPS: '🔋', Servidor: '💻', Reserva: '📦' };
+        html += `
+          <div class="rack-unit" style="grid-row: span ${dev.height};">
+            <div class="u-number">${u}</div>
+            <div class="u-slot ${statusClass}" onclick="editDevice(${dev.id})" style="min-height: ${dev.height * 28 + (dev.height-1)*2}px;" data-tooltip="Click para editar">
+              <div class="u-slot-name">${icons[dev.type] || '📦'} ${dev.name}</div>
+              <div class="u-slot-type">${dev.type} · ${dev.height}U</div>
+            </div>
+          </div>
+        `;
+      } else if (!dev) {
+        html += `
+          <div class="rack-unit">
+            <div class="u-number">${u}</div>
+            <div class="u-slot" onclick="openModalWithU(${u})">
+              <span class="u-slot-empty">Libre — click para agregar</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+    units.innerHTML = html;
+
+    // Stats
+    const used = devices.reduce((sum, d) => sum + d.height, 0);
+    const percent = Math.round((used / RACK_SIZE) * 100);
+    document.getElementById('rack-used').textContent = used;
+    document.getElementById('rack-total').textContent = RACK_SIZE;
+    document.getElementById('rack-percent').textContent = percent;
+    document.getElementById('legend-free').textContent = RACK_SIZE - used;
+    document.getElementById('legend-active').textContent = devices.filter(d => d.status === 'active').length;
+    document.getElementById('legend-maint').textContent = devices.filter(d => d.status === 'maintenance').length;
+    document.getElementById('legend-pending').textContent = devices.filter(d => d.status === 'pending').length;
+  }
+
+  // INVENTORY
+  function renderInventory() {
+    const search = document.getElementById('search-inventory').value.toLowerCase();
+    const tbody = document.getElementById('inventory-tbody');
+    const filtered = devices.filter(d => 
+      d.name.toLowerCase().includes(search) ||
+      d.type.toLowerCase().includes(search) ||
+      String(d.u).includes(search)
+    );
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">${devices.length === 0 ? 'Sin equipos aún' : 'Sin resultados'}</div><div>${devices.length === 0 ? 'Agrega tu primer equipo' : 'Intenta con otra búsqueda'}</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = filtered.map(d => {
+      const statusBadge = {
+        active: '<span class="badge badge-active"><span class="badge-dot"></span>Activo</span>',
+        maintenance: '<span class="badge badge-maintenance"><span class="badge-dot"></span>Mantenimiento</span>',
+        pending: '<span class="badge badge-pending"><span class="badge-dot"></span>Pendiente</span>'
+      };
+      return `
+        <tr>
+          <td><strong>#${d.id}</strong></td>
+          <td><strong>${d.name}</strong></td>
+          <td>${d.type}</td>
+          <td>U${d.u} - U${d.u + d.height - 1}</td>
+          <td>${d.height}U</td>
+          <td>${statusBadge[d.status]}</td>
+          <td>${d.circuit || '—'}</td>
+          <td>
+            <button class="action-btn action-edit" onclick="editDevice(${d.id})">✏️ Editar</button>
+            <button class="action-btn action-delete" onclick="deleteDevice(${d.id})">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // MAPPING
+  function renderMappings() {
+    const tbody = document.getElementById('mapping-tbody');
+    if (mappings.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🔗</div><div class="empty-title">Sin mapeos</div><div>Relaciona puertos con servicios</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = mappings.map(m => {
+      const dev = devices.find(d => d.id === m.deviceId);
+      return `
+        <tr>
+          <td><strong>${m.port}</strong></td>
+          <td>${dev ? dev.name : '—'}</td>
+          <td>${m.service}</td>
+          <td>${m.vlan || '—'}</td>
+          <td>
+            <button class="action-btn action-edit" onclick="editMapping(${m.id})">✏️</button>
+            <button class="action-btn action-delete" onclick="deleteMapping(${m.id})">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // DASHBOARD
+  function renderDashboard() {
+    const racks = new Set(devices.map(d => d.rack || 'principal')).size;
+    document.getElementById('kpi-racks').textContent = racks || (devices.length > 0 ? 1 : 0);
+    document.getElementById('kpi-equipos').textContent = devices.length;
+    document.getElementById('kpi-activos').textContent = devices.filter(d => d.status === 'active').length;
+    document.getElementById('kpi-mant').textContent = devices.filter(d => d.status === 'maintenance').length;
+
+    const summary = document.getElementById('quick-summary');
+    if (devices.length === 0) {
+      summary.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aún no hay datos</div><div>Comienza agregando tu primer equipo en la pestaña "Vista de Rack"</div></div>`;
+    } else {
+      const byType = {};
+      devices.forEach(d => { byType[d.type] = (byType[d.type] || 0) + 1; });
+      summary.innerHTML = `
+        <div class="kpi-grid">
+          ${Object.entries(byType).map(([type, count]) => `
+            <div class="kpi kpi-purple">
+              <div class="kpi-label">${type}</div>
+              <div class="kpi-value">${count}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+  }
+
+  // MODAL DEVICE
+  function openModal() {
+    document.getElementById('modal').classList.add('active');
+    document.getElementById('modal-title').textContent = '➕ Agregar Equipo';
+    document.getElementById('device-form').reset();
+    document.getElementById('device-id').value = '';
+  }
+
+  function openModalWithU(u) {
+    openModal();
+    document.getElementById('device-u').value = u;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  function editDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('modal').classList.add('active');
+    document.getElementById('modal-title').textContent = '✏️ Editar Equipo';
+    document.getElementById('device-id').value = d.id;
+    document.getElementById('device-name').value = d.name;
+    document.getElementById('device-type').value = d.type;
+    document.getElementById('device-u').value = d.u;
+    document.getElementById('device-height').value = d.height;
+    document.getElementById('device-status').value = d.status;
+    document.getElementById('device-circuit').value = d.circuit || '';
+    document.getElementById('device-service').value = d.service || '';
+    document.getElementById('device-validation').value = d.validation || 'CONFIRMADO';
+  }
+
+  function saveDevice(e) {
+    e.preventDefault();
+    const id = document.getElementById('device-id').value;
+    const data = {
+      id: id ? parseInt(id) : Date.now(),
+      name: document.getElementById('device-name').value,
+      type: document.getElementById('device-type').value,
+      u: parseInt(document.getElementById('device-u').value),
+      height: parseInt(document.getElementById('device-height').value),
+      status: document.getElementById('device-status').value,
+      circuit: document.getElementById('device-circuit').value,
+      service: document.getElementById('device-service').value,
+      validation: document.getElementById('device-validation').value
+    };
+
+    // Check overlap
+    const overlap = devices.find(d => 
+      d.id !== data.id &&
+      ((data.u >= d.u && data.u < d.u + d.height) ||
+       (data.u + data.height > d.u && data.u + data.height <= d.u + d.height))
+    );
+    if (overlap) {
+      toast(`Conflicto: se superpone con "${overlap.name}"`, 'error');
+      return;
+    }
+
+    if (id) {
+      devices = devices.map(d => d.id === data.id ? data : d);
+      addLog(`✏️ Editado: ${data.name} en U${data.u}`);
+      toast('Equipo actualizado');
+    } else {
+      devices.push(data);
+      addLog(`➕ Agregado: ${data.name} en U${data.u} (${data.height}U)`);
+      toast('Equipo agregado');
+    }
+    persist();
+    closeModal();
+  }
+
+  function deleteDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    if (!confirm(`¿Eliminar "${d.name}"?`)) return;
+    devices = devices.filter(x => x.id !== id);
+    addLog(`🗑️ Eliminado: ${d.name}`);
+    toast('Equipo eliminado', 'warning');
+    persist();
+  }
+
+  // MODAL MAPPING
+  function openMappingModal() {
+    const select = document.getElementById('mapping-device');
+    select.innerHTML = '<option value="">Seleccionar equipo...</option>' + 
+      devices.map(d => `<option value="${d.id}">${d.name} (${d.type})</option>`).join('');
+    document.getElementById('mapping-modal').classList.add('active');
+    document.getElementById('mapping-form').reset();
+    document.getElementById('mapping-id').value = '';
+  }
+
+  function closeMappingModal() {
+    document.getElementById('mapping-modal').classList.remove('active');
+  }
+
+  function editMapping(id) {
+    const m = mappings.find(x => x.id === id);
+    if (!m) return;
+    openMappingModal();
+    document.getElementById('mapping-id').value = m.id;
+    document.getElementById('mapping-device').value = m.deviceId;
+    document.getElementById('mapping-port').value = m.port;
+    document.getElementById('mapping-service').value = m.service;
+    document.getElementById('mapping-vlan').value = m.vlan || '';
+  }
+
+  function saveMapping(e) {
+    e.preventDefault();
+    const id = document.getElementById('mapping-id').value;
+    const data = {
+      id: id ? parseInt(id) : Date.now(),
+      deviceId: parseInt(document.getElementById('mapping-device').value),
+      port: document.getElementById('mapping-port').value,
+      service: document.getElementById('mapping-service').value,
+      vlan: document.getElementById('mapping-vlan').value
+    };
+    if (id) {
+      mappings = mappings.map(m => m.id === data.id ? data : m);
+      addLog(`✏️ Mapeo editado: ${data.port}`);
+    } else {
+      mappings.push(data);
+      addLog(`➕ Mapeo agregado: ${data.port}`);
+    }
+    persist();
+    closeMappingModal();
+    toast('Mapeo guardado');
+  }
+
+  function deleteMapping(id) {
+    if (!confirm('¿Eliminar este mapeo?')) return;
+    mappings = mappings.filter(x => x.id !== id);
+    addLog(`🗑️ Mapeo eliminado`);
+    toast('Mapeo eliminado', 'warning');
+    persist();
+  }
+
+  // PERSISTENCE
+  function persist() {
+    localStorage.setItem('rackscope_devices', JSON.stringify(devices));
+    localStorage.setItem('rackscope_mappings', JSON.stringify(mappings));
+    renderAll();
+  }
+
+  function renderAll() {
+    renderDashboard();
+    renderRack();
+    renderInventory();
+    renderMappings();
+    renderLog();
+  }
+
+  function saveLocal() {
+    const data = { devices, mappings, log, date: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rackscope-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    toast('Copia descargada');
+  }
+
+  function loadLocal() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          devices = data.devices || [];
+          mappings = data.mappings || [];
+          log = data.log || [];
+          persist();
+          toast('Copia cargada correctamente');
+        } catch (err) {
+          toast('Error al cargar archivo', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function resetAll() {
+    if (!confirm('¿Reiniciar TODO? Se perderán todos los datos.')) return;
+    devices = [];
+    mappings = [];
+    log = [];
+    localStorage.removeItem('rackscope_devices');
+    localStorage.removeItem('rackscope_mappings');
+    localStorage.removeItem('rackscope_log');
+    renderAll();
+    toast('Todo reiniciado', 'warning');
+  }
+
+  // INIT
+  renderAll();
+</script>
+
+</body>
+</html>
