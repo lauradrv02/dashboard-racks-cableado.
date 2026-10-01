@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Rack</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1.25rem 2rem;
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-primary { background: white; color: var(--primary-dark); }
+  .btn-primary:hover { background: #f1f5f9; }
+  .btn-ghost { background: rgba(255,255,255,0.15); color: white; backdrop-filter: blur(10px); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-lg { padding: 0.85rem 1.5rem; font-size: 1rem; }
+  .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+  
+  .save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #d1fae5;
+  }
+  .save-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+  
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--card);
+    padding: 0.4rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-light);
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .tab:hover { background: #f1f5f9; color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: var(--shadow);
+  }
+  
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .card-title { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; }
+  .card-subtitle { color: var(--text-light); font-size: 0.9rem; margin-top: 0.2rem; }
+  
+  .tab-content { display: none; animation: fadeIn 0.3s; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .kpi {
+    background: var(--card);
+    padding: 1.25rem;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+  }
+  .kpi-click-hint {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    background: #f1f5f9;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+  }
+  .kpi:hover .kpi-click-hint { opacity: 1; }
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .kpi-label { color: var(--text-light); font-size: 0.85rem; font-weight: 500; margin-bottom: 0.3rem; }
+  .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text); }
+  .kpi-trend { font-size: 0.8rem; margin-top: 0.3rem; color: var(--success); }
+  .kpi-blue .kpi-icon { background: #dbeafe; color: var(--info); }
+  .kpi-green .kpi-icon { background: #d1fae5; color: var(--success); }
+  .kpi-yellow .kpi-icon { background: #fef3c7; color: var(--warning); }
+  .kpi-purple .kpi-icon { background: #e0e7ff; color: var(--primary); }
+  
+  .rack-selector { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .rack-selector-card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .rack-selector-card:hover { border-color: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .rack-selector-card.active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .rack-selector-card.active::after {
+    content: '✓';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: var(--primary);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .rack-selector-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem; }
+  .rack-selector-location { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem; }
+  .rack-selector-stats { display: flex; gap: 0.75rem; font-size: 0.78rem; color: var(--text-light); }
+  .rack-selector-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    border: 2px dashed var(--border);
+    color: var(--text-light);
+    font-weight: 600;
+    gap: 0.3rem;
+  }
+  .rack-selector-add:hover { border-color: var(--primary); color: var(--primary); background: #f8fafc; }
+  
+  .rack-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+  @media (max-width: 900px) { .rack-layout { grid-template-columns: 1fr; } }
+  .rack-visual {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 14px;
+    padding: 1.5rem;
+    color: white;
+    min-height: 500px;
+  }
+  .rack-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .rack-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+  .rack-location-badge { background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 400; }
+  .rack-stats { display: flex; gap: 1rem; font-size: 0.85rem; }
+  .rack-stat { display: flex; align-items: center; gap: 0.3rem; opacity: 0.8; }
+  .rack-units { display: flex; flex-direction: column; gap: 2px; }
+  .rack-unit { display: grid; grid-template-columns: 40px 1fr; gap: 0.5rem; align-items: center; min-height: 28px; }
+  .u-number { font-family: 'Courier New', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.4); text-align: right; padding-right: 0.5rem; }
+  .u-slot {
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .u-slot:hover { background: rgba(255,255,255,0.08); border-color: var(--primary-light); }
+  .u-slot.occupied {
+    background: linear-gradient(90deg, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0.1) 100%);
+    border: 1px solid rgba(99,102,241,0.4);
+    border-style: solid;
+  }
+  .u-slot.maintenance {
+    background: linear-gradient(90deg, rgba(245,158,11,0.3) 0%, rgba(245,158,11,0.1) 100%);
+    border: 1px solid rgba(245,158,11,0.4);
+  }
+  .u-slot.pending {
+    background: linear-gradient(90deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%);
+    border: 1px solid rgba(59,130,246,0.4);
+  }
+  .u-slot-name { font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+  .u-slot-type { font-size: 0.75rem; opacity: 0.7; }
+  .u-slot-empty { color: rgba(255,255,255,0.3); font-style: italic; }
+  
+  .rack-legend { background: var(--card); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow); }
+  .legend-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem; border-radius: 8px; margin-bottom: 0.4rem; transition: background 0.2s; }
+  .legend-item:hover { background: #f8fafc; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+  .legend-dot.free { background: #94a3b8; }
+  .legend-dot.active { background: var(--primary); }
+  .legend-dot.maintenance { background: var(--warning); }
+  .legend-dot.pending { background: var(--info); }
+  .legend-label { font-size: 0.9rem; flex: 1; }
+  .legend-count { font-weight: 700; color: var(--text-light); }
+  
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+  .form-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem; font-weight: 400; }
+  .form-control {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background: white;
+    font-family: inherit;
+  }
+  .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .form-control.invalid { border-color: var(--danger); }
+  .form-control.invalid:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+  select.form-control { cursor: pointer; }
+  
+  /* Custom type input */
+  .custom-type-wrapper {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: #fef3c7;
+    border-radius: 8px;
+    border: 1px dashed var(--warning);
+  }
+  .custom-type-wrapper.active { display: block; animation: fadeIn 0.3s; }
+  .custom-type-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    align-items: center;
+  }
+  .custom-type-actions label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  /* Custom types manager */
+  .custom-types-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .custom-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    background: #e0e7ff;
+    color: var(--primary-dark);
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .custom-type-chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .custom-type-chip button:hover { opacity: 1; color: var(--danger); }
+  
+  .table-wrapper { overflow-x: auto; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  thead { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
+  th { padding: 0.85rem 1rem; text-align: left; font-weight: 700; color: var(--text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: #f8fafc; }
+  
+  .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .badge-active { background: #d1fae5; color: #065f46; }
+  .badge-maintenance { background: #fef3c7; color: #92400e; }
+  .badge-pending { background: #dbeafe; color: #1e40af; }
+  .badge-id { background: #f3e8ff; color: #6b21a8; font-family: 'Courier New', monospace; font-size: 0.72rem; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  
+  .action-btn { padding: 0.35rem 0.6rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; margin-right: 0.25rem; }
+  .action-edit { background: #dbeafe; color: var(--info); }
+  .action-edit:hover { background: var(--info); color: white; }
+  .action-delete { background: #fee2e2; color: var(--danger); }
+  .action-delete:hover { background: var(--danger); color: white; }
+  .action-view { background: #e0e7ff; color: var(--primary); }
+  .action-view:hover { background: var(--primary); color: white; }
+  
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+  .modal {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 650px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s;
+  }
+  .modal.modal-lg { max-width: 1000px; }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .modal-title { font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+  .modal-count { background: var(--primary); color: white; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+  .modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border);
+    flex-wrap: wrap;
+  }
+  
+  .toast-container { position: fixed; top: 90px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toast {
+    background: var(--card);
+    padding: 0.9rem 1.2rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 250px;
+    animation: slideIn 0.3s;
+    border-left: 4px solid var(--success);
+  }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; padding-bottom: 1.25rem; }
+  .timeline-dot { position: absolute; left: -1.85rem; top: 0.2rem; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); border: 3px solid white; box-shadow: 0 0 0 2px var(--primary); }
+  .timeline-content { background: #f8fafc; padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--primary); }
+  .timeline-time { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.2rem; }
+  .timeline-text { font-size: 0.9rem; }
+  
+  .layers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+  .layer-card { background: linear-gradient(135deg, var(--card) 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 14px; border: 2px solid var(--border); transition: all 0.2s; cursor: pointer; }
+  .layer-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .layer-number { display: inline-block; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; width: 36px; height: 36px; border-radius: 10px; text-align: center; line-height: 36px; font-weight: 700; margin-bottom: 0.75rem; }
+  .layer-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .layer-desc { color: var(--text-light); font-size: 0.88rem; line-height: 1.6; }
+  
+  .welcome-banner { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 2rem; border-radius: 16px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+  .welcome-banner::before { content: ''; position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+  .welcome-banner::after { content: ''; position: absolute; right: 50px; bottom: -80px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+  .welcome-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; position: relative; }
+  .welcome-subtitle { opacity: 0.95; font-size: 1rem; position: relative; max-width: 600px; }
+  
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-light); }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+  .empty-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+  
+  .search-bar { position: relative; margin-bottom: 1rem; }
+  .search-bar input { width: 100%; padding: 0.7rem 1rem 0.7rem 2.5rem; border: 2px solid var(--border); border-radius: 10px; font-size: 0.9rem; transition: all 0.2s; }
+  .search-bar input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .search-icon { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+  
+  .racks-overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  .rack-overview-card { background: var(--card); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow); border-left: 4px solid var(--primary); transition: all 0.2s; }
+  .rack-overview-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .rack-overview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+  .rack-overview-name { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+  .rack-overview-location { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.75rem; }
+  .rack-overview-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem; }
+  .rack-overview-stat { text-align: center; padding: 0.5rem; background: #f8fafc; border-radius: 8px; }
+  .rack-overview-stat-value { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+  .rack-overview-stat-label { font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; }
+  .rack-progress { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; }
+  .rack-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 4px; transition: width 0.3s; }
+  .rack-progress-label { font-size: 0.75rem; color: var(--text-light); display: flex; justify-content: space-between; }
+  .rack-overview-actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+  .rack-overview-actions button { flex: 1; padding: 0.4rem; font-size: 0.8rem; }
+  
+  .detail-item { background: #f8fafc; border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; border-left: 4px solid var(--primary); transition: all 0.2s; }
+  .detail-item:hover { background: #f1f5f9; transform: translateX(3px); }
+  .detail-item.rack-item { border-left-color: var(--info); }
+  .detail-item.maintenance-item { border-left-color: var(--warning); }
+  .detail-item-icon { width: 40px; height: 40px; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: var(--shadow); }
+  .detail-item-info { min-width: 0; }
+  .detail-item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.15rem; }
+  .detail-item-meta { font-size: 0.78rem; color: var(--text-light); display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .detail-item-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon">🔌</div>
+      <div>
+        <div>Dashboard Rack</div>
+        <div style="font-size: 0.75rem; opacity: 0.85; font-weight: 400;">Multi-Rack · Cableado Estructurado Inteligente</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="save-indicator"><span class="save-dot"></span> Guardado automático</span>
+      <button class="btn btn-ghost" onclick="saveLocal()">💾 Guardar</button>
+      <button class="btn btn-ghost" onclick="loadLocal()">📂 Cargar</button>
+      <button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="welcome-banner">
+    <div class="welcome-title">¡Bienvenido a Dashboard Rack! 👋</div>
+    <div class="welcome-subtitle">Gestiona múltiples racks en diferentes ubicaciones de forma visual e intuitiva. Identifica equipos por MAC o Serial, y agrega tipos personalizados.</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard', this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('racks', this)">🗄️ Racks</button>
+    <button class="tab" onclick="switchTab('rack-view', this)">👁️ Vista de Rack</button>
+    <button class="tab" onclick="switchTab('inventory', this)">📦 Inventario</button>
+    <button class="tab" onclick="switchTab('mapping', this)">🔗 Mapeo Lógico</button>
+    <button class="tab" onclick="switchTab('log', this)">📝 Bitácora</button>
+    <button class="tab" onclick="switchTab('guide', this)">📚 Guía</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="tab-content active">
+    <div class="kpi-grid">
+      <div class="kpi kpi-blue" onclick="showDetail('racks')">
+        <span class="kpi-click-hint">👆 Ver detalle</span>
+        <div class="kpi-icon">🗄️</div>
+        <div class="kpi-label">Racks Totales</div>
+        <div class="kpi-value" id="kpi-racks">0</div>
+        <div class="kpi-trend">Infraestructura activa</div>
+      </div>
+      <div class="kpi kpi-purple" onclick="showDetail('all')">
+        <span class="kpi-click-hint">👆 Ver detalle</span>
+        <div class="kpi-icon">💻</div>
+        <div class="kpi-label">Equipos Instalados</div>
+        <div class="kpi-value" id="kpi-equipos">0</div>
+        <div class="kpi-trend">En todos los racks</div>
+      </div>
+      <div class="kpi kpi-green" onclick="showDetail('active')">
+        <span class="kpi-click-hint">👆 Ver detalle</span>
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-label">Operativos</div>
+        <div class="kpi-value" id="kpi-activos">0</div>
+        <div class="kpi-trend">Estado activo</div>
+      </div>
+      <div class="kpi kpi-yellow" onclick="showDetail('maintenance')">
+        <span class="kpi-click-hint">👆 Ver detalle</span>
+        <div class="kpi-icon">🔧</div>
+        <div class="kpi-label">En Mantenimiento</div>
+        <div class="kpi-value" id="kpi-mant">0</div>
+        <div class="kpi-trend">Requieren atención</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🗄️ Resumen por Rack</div>
+          <div class="card-subtitle">Estado general de cada rack</div>
+        </div>
+        <button class="btn btn-primary" onclick="openRackModal()">➕ Nuevo Rack</button>
+      </div>
+      <div id="racks-overview"></div>
+    </div>
+  </div>
+
+  <!-- RACKS TAB -->
+  <div id="racks" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🗄️ Gestión de Racks</div>
+          <div class="card-subtitle">Administra todos tus racks y sus ubicaciones</div>
+        </div>
+        <button class="btn btn-primary" onclick="openRackModal()">➕ Nuevo Rack</button>
+      </div>
+      <div class="racks-overview-grid" id="racks-grid"></div>
+    </div>
+  </div>
+
+  <!-- RACK VIEW TAB -->
+  <div id="rack-view" class="tab-content">
+    <div id="rack-view-content"></div>
+  </div>
+
+  <!-- INVENTORY TAB -->
+  <div id="inventory" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📦 Inventario de Equipos</div>
+          <div class="card-subtitle">Todos los dispositivos en todos tus racks</div>
+        </div>
+        <button class="btn btn-primary" onclick="openDeviceModal()">➕ Nuevo Equipo</button>
+      </div>
+      <div class="form-grid" style="margin-bottom: 1rem;">
+        <div class="search-bar" style="margin: 0;">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-inventory" placeholder="Buscar por nombre, tipo, MAC, serial..." oninput="renderInventory()">
+        </div>
+        <select class="form-control" id="filter-rack" onchange="renderInventory()" style="margin: 0;">
+          <option value="">Todos los racks</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Rack</th>
+              <th>Equipo</th>
+              <th>Tipo</th>
+              <th>Identificador</th>
+              <th>U</th>
+              <th>Estado</th>
+              <th>Circuito</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPPING TAB -->
+  <div id="mapping" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔗 Interfaces y Mapeo Lógico</div>
+          <div class="card-subtitle">Relaciona puertos con servicios y destinos</div>
+        </div>
+        <button class="btn btn-primary" onclick="openMappingModal()">➕ Nuevo Mapeo</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Puerto</th>
+              <th>Rack</th>
+              <th>Equipo</th>
+              <th>Servicio / Destino</th>
+              <th>VLAN</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="mapping-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="log" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📝 Bitácora de Cambios</div>
+          <div class="card-subtitle">Historial completo de acciones realizadas</div>
+        </div>
+        <button class="btn btn-secondary" onclick="clearLog()">🗑️ Limpiar</button>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+  <!-- GUIDE TAB -->
+  <div id="guide" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📚 Conceptos y Capas</div>
+          <div class="card-subtitle">Base técnica: tres capas, una fuente de verdad</div>
+        </div>
+      </div>
+      <div class="layers-grid">
+        <div class="layer-card">
+          <div class="layer-number">01</div>
+          <div class="layer-title">🔌 Capa Física</div>
+          <div class="layer-desc">Sede → Cuarto → Rack → Posición U → Equipo → Puerto → Cable → Patch Panel. Representa el mundo tangible de tu infraestructura.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-number">02</div>
+          <div class="layer-title">🌐 Capa Lógica</div>
+          <div class="layer-desc">Interfaz → VLAN/Red → Servicio → Dependencia → Criticidad del servicio. Cómo se relacionan los datos y servicios.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-number">03</div>
+          <div class="layer-title">⚡ Capa Eléctrica</div>
+          <div class="layer-desc">Fuente → Toma PDU → Circuito → Tablero/UPS → Redundancia A/B. Garantiza la energía y continuidad operativa.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🚀 Historias Mínimas</div>
+          <div class="card-subtitle">Casos de uso principales</div>
+        </div>
+      </div>
+      <div class="layers-grid">
+        <div class="layer-card">
+          <div class="layer-title">🗄️ Multi-Rack</div>
+          <div class="layer-desc">Crea múltiples racks en diferentes ubicaciones (sede, cuarto, piso). Cada rack tiene su propio tamaño y configuración.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-title">🔖 Identificadores Únicos</div>
+          <div class="layer-desc">Registra MAC Address o número de serie de cada equipo para identificarlos de forma única en tu inventario.</div>
+        </div>
+        <div class="layer-card">
+          <div class="layer-title">✏️ Tipos Personalizados</div>
+          <div class="layer-desc">Si el tipo de dispositivo no está en la lista, puedes crear uno personalizado y guardarlo como favorito para reutilizarlo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL DETALLE KPI -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-modal-title">
+        Detalle <span class="modal-count" id="detail-count">0</span>
+      </div>
+      <button class="modal-close" onclick="closeDetailModal()">×</button>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="detail-search" placeholder="Buscar en esta lista..." oninput="renderDetailList()">
+    </div>
+    <div id="detail-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDetailModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RACK -->
+<div class="modal-overlay" id="rack-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="rack-modal-title">➕ Nuevo Rack</div>
+      <button class="modal-close" onclick="closeRackModal()">×</button>
+    </div>
+    <form id="rack-form" onsubmit="saveRack(event)">
+      <input type="hidden" id="rack-id">
+      <div class="form-group">
+        <label>Nombre del Rack *</label>
+        <input type="text" class="form-control" id="rack-name" required placeholder="Ej: Rack-Core-Sede, Rack-Piso2">
+        <div class="form-hint">Identificador único y descriptivo</div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Ubicación / Sede *</label>
+          <input type="text" class="form-control" id="rack-location" required placeholder="Ej: Sede Central, Piso 2, MDF">
+          <div class="form-hint">Dónde se encuentra físicamente</div>
+        </div>
+        <div class="form-group">
+          <label>Tamaño (Unidades U) *</label>
+          <input type="number" class="form-control" id="rack-size" min="6" max="52" value="42" required>
+          <div class="form-hint">Tamaño estándar: 42U</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descripción / Notas</label>
+        <input type="text" class="form-control" id="rack-description" placeholder="Ej: Rack principal de distribución">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeRackModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">💾 Guardar Rack</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL DEVICE -->
+<div class="modal-overlay" id="device-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="device-modal-title">➕ Agregar Equipo</div>
+      <button class="modal-close" onclick="closeDeviceModal()">×</button>
+    </div>
+    <form id="device-form" onsubmit="saveDevice(event)">
+      <input type="hidden" id="device-id">
+      <div class="form-group">
+        <label>Rack Destino *</label>
+        <select class="form-control" id="device-rack" required></select>
+        <div class="form-hint">Selecciona en qué rack se instalará</div>
+      </div>
+      <div class="form-group">
+        <label>Nombre del Equipo *</label>
+        <input type="text" class="form-control" id="device-name" required placeholder="Ej: Switch-Core-01">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo de Dispositivo *</label>
+          <select class="form-control" id="device-type" required onchange="handleTypeChange()"></select>
+          <div class="custom-type-wrapper" id="custom-type-wrapper">
+            <input type="text" class="form-control" id="device-custom-type" placeholder="Escribe el tipo personalizado...">
+            <div class="form-hint">Ej: Router, Firewall, NAS, Access Point, etc.</div>
+            <div class="custom-type-actions">
+              <label>
+                <input type="checkbox" id="save-as-favorite">
+                💾 Guardar como tipo favorito
+              </label>
+            </div>
+          </div>
+          <div id="custom-types-manager" style="margin-top: 0.5rem;"></div>
+        </div>
+        <div class="form-group">
+          <label>Unidad U (Posición) *</label>
+          <input type="number" class="form-control" id="device-u" min="1" max="52" required placeholder="1-42">
+        </div>
+        <div class="form-group">
+          <label>Altura (Unidades U) *</label>
+          <input type="number" class="form-control" id="device-height" min="1" max="52" value="1" required>
+        </div>
+        <div class="form-group">
+          <label>Estado Operativo</label>
+          <select class="form-control" id="device-status">
+            <option value="active">✅ Activo</option>
+            <option value="maintenance">🔧 Mantenimiento</option>
+            <option value="pending">⏳ Pendiente</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="background: #f8fafc; padding: 1rem; border-radius: 10px; margin: 1rem 0; border-left: 3px solid var(--primary);">
+        <div style="font-weight: 700; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          🔖 Identificadores Únicos
+          <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-light);">(Opcional — para identificar el equipo)</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>MAC Address</label>
+            <input type="text" class="form-control" id="device-mac" placeholder="AA:BB:CC:DD:EE:FF" oninput="validateMac()">
+            <div class="form-hint" id="mac-hint">Formato: XX:XX:XX:XX:XX:XX</div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Número de Serie</label>
+            <input type="text" class="form-control" id="device-serial" placeholder="Ej: SN123456789">
+            <div class="form-hint">Código único del fabricante</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Circuito / Energía (PDU)</label>
+          <input type="text" class="form-control" id="device-circuit" placeholder="Ej: PDU-A">
+        </div>
+        <div class="form-group">
+          <label>Servicio / Función Lógica</label>
+          <input type="text" class="form-control" id="device-service" placeholder="Ej: Red corporativa">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Estado del Dato</label>
+        <select class="form-control" id="device-validation">
+          <option value="CONFIRMADO">✅ Confirmado</option>
+          <option value="INFERIDO">💡 Inferido</option>
+          <option value="PENDIENTE">⏳ Pendiente</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDeviceModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">💾 Guardar Dispositivo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL MAPPING -->
+<div class="modal-overlay" id="mapping-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Nuevo Mapeo Lógico</div>
+      <button class="modal-close" onclick="closeMappingModal()">×</button>
+    </div>
+    <form id="mapping-form" onsubmit="saveMapping(event)">
+      <input type="hidden" id="mapping-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Equipo *</label>
+          <select class="form-control" id="mapping-device" required></select>
+        </div>
+        <div class="form-group">
+          <label>Puerto *</label>
+          <input type="text" class="form-control" id="mapping-port" required placeholder="Ej: Gi0/1">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Servicio / Destino *</label>
+          <input type="text" class="form-control" id="mapping-service" required placeholder="Ej: VLAN 10 - Ventas">
+        </div>
+        <div class="form-group">
+          <label>VLAN</label>
+          <input type="text" class="form-control" id="mapping-vlan" placeholder="Ej: VLAN 10">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeMappingModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // STATE
+  let racks = JSON.parse(localStorage.getItem('rackscope_racks') || '[]');
+  let devices = JSON.parse(localStorage.getItem('rackscope_devices') || '[]');
+  let mappings = JSON.parse(localStorage.getItem('rackscope_mappings') || '[]');
+  let log = JSON.parse(localStorage.getItem('rackscope_log') || '[]');
+  let customTypes = JSON.parse(localStorage.getItem('rackscope_custom_types') || '[]');
+  let activeRackId = localStorage.getItem('rackscope_active_rack') || null;
+  let currentDetailFilter = null;
+
+  const DEFAULT_TYPES = ['Switch', 'Patch Panel', 'Organizador', 'UPS', 'Servidor', 'Reserva'];
+
+  // MIGRATION
+  if (devices.length > 0 && devices.some(d => !d.rackId)) {
+    if (racks.length === 0) {
+      racks.push({
+        id: Date.now(),
+        name: 'Rack Principal',
+        location: 'Ubicación por defecto',
+        size: 42,
+        description: 'Rack migrado automáticamente'
+      });
+    }
+    const defaultRackId = racks[0].id;
+    devices = devices.map(d => ({ 
+      ...d, 
+      rackId: d.rackId || defaultRackId,
+      mac: d.mac || '',
+      serial: d.serial || ''
+    }));
+    persist();
+  }
+
+  // TABS
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    if (id === 'rack-view') renderRackView();
+  }
+
+  // TOAST
+  function toast(msg, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+    t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    container.appendChild(t);
+    setTimeout(() => {
+      t.style.animation = 'slideIn 0.3s reverse';
+      setTimeout(() => t.remove(), 300);
+    }, 3000);
+  }
+
+  // LOG
+  function addLog(action) {
+    log.unshift({ time: new Date().toLocaleString('es-MX'), action: action });
+    if (log.length > 50) log = log.slice(0, 50);
+    localStorage.setItem('rackscope_log', JSON.stringify(log));
+    renderLog();
+  }
+
+  function renderLog() {
+    const container = document.getElementById('timeline');
+    if (log.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Sin cambios registrados</div><div>Tus acciones aparecerán aquí</div></div>`;
+      return;
+    }
+    container.innerHTML = log.map(l => `
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-time">${l.time}</div>
+          <div class="timeline-text">${l.action}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function clearLog() {
+    if (confirm('¿Limpiar toda la bitácora?')) {
+      log = [];
+      localStorage.setItem('rackscope_log', JSON.stringify(log));
+      renderLog();
+      toast('Bitácora limpiada');
+    }
+  }
+
+  // HELPERS
+  function getRackDevices(rackId) { return devices.filter(d => d.rackId === rackId); }
+
+  function getRackStats(rackId) {
+    const devs = getRackDevices(rackId);
+    const rack = racks.find(r => r.id === rackId);
+    const used = devs.reduce((sum, d) => sum + d.height, 0);
+    const total = rack ? rack.size : 42;
+    const percent = total > 0 ? Math.round((used / total) * 100) : 0;
+    return {
+      used, total, percent,
+      active: devs.filter(d => d.status === 'active').length,
+      maintenance: devs.filter(d => d.status === 'maintenance').length,
+      pending: devs.filter(d => d.status === 'pending').length,
+      devices: devs.length
+    };
+  }
+
+  function getDeviceIcon(type) {
+    const icons = { 
+      Switch: '🔀', 'Patch Panel': '🔌', Organizador: '📋', 
+      UPS: '🔋', Servidor: '💻', Reserva: '📦' 
+    };
+    return icons[type] || '🔧';
+  }
+
+  function getDeviceIdentifier(d) {
+    if (d.mac && d.serial) return `${d.mac} · ${d.serial}`;
+    if (d.mac) return d.mac;
+    if (d.serial) return d.serial;
+    return '';
+  }
+
+  // MAC VALIDATION
+  function validateMac() {
+    const input = document.getElementById('device-mac');
+    const hint = document.getElementById('mac-hint');
+    const value = input.value.trim();
+    
+    if (!value) {
+      input.classList.remove('invalid');
+      hint.textContent = 'Formato: XX:XX:XX:XX:XX:XX';
+      hint.style.color = 'var(--text-light)';
+      return true;
+    }
+    
+    // Acepta varios formatos: XX:XX:XX:XX:XX:XX, XX-XX-XX-XX-XX-XX, XXXXXXXXXXXX
+    const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$|^([0-9A-Fa-f]{12})$/;
+    const isValid = macRegex.test(value);
+    
+    if (isValid) {
+      input.classList.remove('invalid');
+      hint.textContent = '✅ Formato válido';
+      hint.style.color = 'var(--success)';
+      return true;
+    } else {
+      input.classList.add('invalid');
+      hint.textContent = '⚠️ Formato inválido. Usa AA:BB:CC:DD:EE:FF';
+      hint.style.color = 'var(--danger)';
+      return false;
+    }
+  }
+
+  // CUSTOM TYPES
+  function renderTypeSelect() {
+    const select = document.getElementById('device-type');
+    const currentValue = select.value;
+    
+    let html = '<option value="">Seleccionar...</option>';
+    html += '<optgroup label="📋 Tipos predeterminados">';
+    DEFAULT_TYPES.forEach(t => {
+      html += `<option value="${t}">${getDeviceIcon(t)} ${t}</option>`;
+    });
+    html += '</optgroup>';
+    
+    if (customTypes.length > 0) {
+      html += '<optgroup label="⭐ Tipos personalizados">';
+      customTypes.forEach(t => {
+        html += `<option value="${t}">🔧 ${t}</option>`;
+      });
+      html += '</optgroup>';
+    }
+    
+    html += '<option value="__CUSTOM__">✏️ Otro (personalizado)...</option>';
+    select.innerHTML = html;
+    
+    if (currentValue && currentValue !== '__CUSTOM__') {
+      select.value = currentValue;
+    }
+    
+    renderCustomTypesManager();
+  }
+
+  function renderCustomTypesManager() {
+    const container = document.getElementById('custom-types-manager');
+    if (customTypes.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = `
+      <div style="font-size: 0.78rem; color: var(--text-light); margin-bottom: 0.3rem;">⭐ Tus tipos favoritos:</div>
+      <div class="custom-types-list">
+        ${customTypes.map(t => `
+          <span class="custom-type-chip">
+            🔧 ${t}
+            <button onclick="removeCustomType('${t.replace(/'/g, "\\'")}')" title="Eliminar">×</button>
+          </span>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function handleTypeChange() {
+    const select = document.getElementById('device-type');
+    const wrapper = document.getElementById('custom-type-wrapper');
+    const customInput = document.getElementById('device-custom-type');
+    
+    if (select.value === '__CUSTOM__') {
+      wrapper.classList.add('active');
+      customInput.focus();
+    } else {
+      wrapper.classList.remove('active');
+      customInput.value = '';
+      document.getElementById('save-as-favorite').checked = false;
+    }
+  }
+
+  function removeCustomType(type) {
+    if (!confirm(`¿Eliminar el tipo personalizado "${type}"?`)) return;
+    customTypes = customTypes.filter(t => t !== type);
+    localStorage.setItem('rackscope_custom_types', JSON.stringify(customTypes));
+    renderTypeSelect();
+    toast('Tipo eliminado');
+  }
+
+  // DETAIL MODAL
+  function showDetail(filter) {
+    currentDetailFilter = filter;
+    document.getElementById('detail-search').value = '';
+    
+    const titles = {
+      racks: { icon: '🗄️', label: 'Racks Totales' },
+      all: { icon: '💻', label: 'Equipos Instalados' },
+      active: { icon: '✅', label: 'Equipos Operativos' },
+      maintenance: { icon: '🔧', label: 'En Mantenimiento' }
+    };
+    
+    const t = titles[filter];
+    document.getElementById('detail-modal-title').innerHTML = `${t.icon} ${t.label} <span class="modal-count" id="detail-count">0</span>`;
+    document.getElementById('detail-modal').classList.add('active');
+    renderDetailList();
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detail-modal').classList.remove('active');
+    currentDetailFilter = null;
+  }
+
+  function renderDetailList() {
+    const content = document.getElementById('detail-content');
+    const search = document.getElementById('detail-search').value.toLowerCase();
+    const countEl = document.getElementById('detail-count');
+    
+    if (currentDetailFilter === 'racks') {
+      const filtered = racks.filter(r => 
+        r.name.toLowerCase().includes(search) || 
+        r.location.toLowerCase().includes(search)
+      );
+      countEl.textContent = filtered.length;
+      
+      if (filtered.length === 0) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-icon">🗄️</div><div class="empty-title">${racks.length === 0 ? 'No hay racks creados' : 'Sin resultados'}</div></div>`;
+        return;
+      }
+      
+      content.innerHTML = filtered.map(r => {
+        const stats = getRackStats(r.id);
+        return `
+          <div class="detail-item rack-item">
+            <div class="detail-item-icon">🗄️</div>
+            <div class="detail-item-info">
+              <div class="detail-item-name">${r.name}</div>
+              <div class="detail-item-meta">
+                <span>📍 ${r.location}</span>
+                <span>📏 ${stats.used}/${stats.total} U</span>
+                <span>📦 ${stats.devices} equipos</span>
+                <span>📊 ${stats.percent}% ocupado</span>
+              </div>
+            </div>
+            <div class="detail-item-actions">
+              <button class="action-btn action-view" onclick="viewRackFromDetail(${r.id})">👁️ Ver</button>
+              <button class="action-btn action-edit" onclick="editRackFromDetail(${r.id})">✏️</button>
+              <button class="action-btn action-delete" onclick="deleteRackFromDetail(${r.id})">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      let filtered = devices;
+      if (currentDetailFilter === 'active') filtered = devices.filter(d => d.status === 'active');
+      else if (currentDetailFilter === 'maintenance') filtered = devices.filter(d => d.status === 'maintenance');
+      
+      filtered = filtered.filter(d => {
+        const idStr = getDeviceIdentifier(d).toLowerCase();
+        return d.name.toLowerCase().includes(search) || 
+               d.type.toLowerCase().includes(search) ||
+               idStr.includes(search);
+      });
+      
+      countEl.textContent = filtered.length;
+      
+      if (filtered.length === 0) {
+        const emptyMsg = devices.length === 0 
+          ? 'No hay equipos instalados' 
+          : currentDetailFilter === 'maintenance' 
+            ? 'No hay equipos en mantenimiento 🎉' 
+            : currentDetailFilter === 'active'
+              ? 'No hay equipos operativos'
+              : 'Sin resultados';
+        content.innerHTML = `<div class="empty-state"><div class="empty-icon">${currentDetailFilter === 'maintenance' ? '🎉' : '💻'}</div><div class="empty-title">${emptyMsg}</div></div>`;
+        return;
+      }
+      
+      const statusBadge = {
+        active: '<span class="badge badge-active"><span class="badge-dot"></span>Activo</span>',
+        maintenance: '<span class="badge badge-maintenance"><span class="badge-dot"></span>Mantenimiento</span>',
+        pending: '<span class="badge badge-pending"><span class="badge-dot"></span>Pendiente</span>'
+      };
+      
+      content.innerHTML = filtered.map(d => {
+        const rack = racks.find(r => r.id === d.rackId);
+        const itemClass = d.status === 'maintenance' ? 'maintenance-item' : '';
+        const identifier = getDeviceIdentifier(d);
+        return `
+          <div class="detail-item ${itemClass}">
+            <div class="detail-item-icon">${getDeviceIcon(d.type)}</div>
+            <div class="detail-item-info">
+              <div class="detail-item-name">${d.name}</div>
+              <div class="detail-item-meta">
+                <span>🗄️ ${rack ? rack.name : '—'}</span>
+                <span>📍 U${d.u}-${d.u + d.height - 1} (${d.height}U)</span>
+                <span>${statusBadge[d.status]}</span>
+                ${identifier ? `<span>🔖 ${identifier}</span>` : ''}
+              </div>
+            </div>
+            <div class="detail-item-actions">
+              <button class="action-btn action-view" onclick="viewDeviceFromDetail(${d.id})">👁️</button>
+              <button class="action-btn action-edit" onclick="editDeviceFromDetail(${d.id})">✏️</button>
+              <button class="action-btn action-delete" onclick="deleteDeviceFromDetail(${d.id})">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  function viewRackFromDetail(rackId) {
+    closeDetailModal();
+    selectRack(rackId);
+    switchTab('rack-view', document.querySelectorAll('.tab')[2]);
+  }
+
+  function editRackFromDetail(rackId) {
+    closeDetailModal();
+    openRackModal(rackId);
+  }
+
+  function deleteRackFromDetail(rackId) {
+    if (!confirm('¿Eliminar este rack y todos sus equipos?')) return;
+    const r = racks.find(x => x.id === rackId);
+    racks = racks.filter(x => x.id !== rackId);
+    devices = devices.filter(d => d.rackId !== rackId);
+    if (activeRackId === rackId) activeRackId = racks.length > 0 ? racks[0].id : null;
+    addLog(`🗑️ Rack eliminado: ${r.name}`);
+    toast('Rack eliminado', 'warning');
+    persist();
+    renderDetailList();
+  }
+
+  function viewDeviceFromDetail(deviceId) {
+    const d = devices.find(x => x.id === deviceId);
+    if (!d) return;
+    closeDetailModal();
+    selectRack(d.rackId);
+    switchTab('rack-view', document.querySelectorAll('.tab')[2]);
+    toast(`Viendo rack: ${racks.find(r => r.id === d.rackId)?.name || ''}`);
+  }
+
+  function editDeviceFromDetail(deviceId) {
+    closeDetailModal();
+    editDevice(deviceId);
+  }
+
+  function deleteDeviceFromDetail(deviceId) {
+    const d = devices.find(x => x.id === deviceId);
+    if (!d) return;
+    if (!confirm(`¿Eliminar "${d.name}"?`)) return;
+    devices = devices.filter(x => x.id !== deviceId);
+    mappings = mappings.filter(m => m.deviceId !== deviceId);
+    addLog(`🗑️ Eliminado: ${d.name}`);
+    toast('Equipo eliminado', 'warning');
+    persist();
+    renderDetailList();
+  }
+
+  // RACK CRUD
+  function openRackModal(id = null) {
+    document.getElementById('rack-modal').classList.add('active');
+    document.getElementById('rack-form').reset();
+    document.getElementById('rack-id').value = '';
+    document.getElementById('rack-size').value = 42;
+    
+    if (id) {
+      const r = racks.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('rack-modal-title').textContent = '✏️ Editar Rack';
+      document.getElementById('rack-id').value = r.id;
+      document.getElementById('rack-name').value = r.name;
+      document.getElementById('rack-location').value = r.location;
+      document.getElementById('rack-size').value = r.size;
+      document.getElementById('rack-description').value = r.description || '';
+    } else {
+      document.getElementById('rack-modal-title').textContent = '➕ Nuevo Rack';
+    }
+  }
+
+  function closeRackModal() { document.getElementById('rack-modal').classList.remove('active'); }
+
+  function saveRack(e) {
+    e.preventDefault();
+    const id = document.getElementById('rack-id').value;
+    const data = {
+      id: id ? parseInt(id) : Date.now(),
+      name: document.getElementById('rack-name').value,
+      location: document.getElementById('rack-location').value,
+      size: parseInt(document.getElementById('rack-size').value),
+      description: document.getElementById('rack-description').value
+    };
+
+    if (id) {
+      const existingDevices = getRackDevices(data.id);
+      const maxU = existingDevices.length > 0 ? Math.max(0, ...existingDevices.map(d => d.u + d.height - 1)) : 0;
+      if (maxU > data.size) {
+        toast(`No puedes reducir el tamaño: hay equipos hasta la U${maxU}`, 'error');
+        return;
+      }
+    }
+
+    if (id) {
+      racks = racks.map(r => r.id === data.id ? data : r);
+      addLog(`✏️ Rack editado: ${data.name}`);
+      toast('Rack actualizado');
+    } else {
+      racks.push(data);
+      addLog(`➕ Rack creado: ${data.name} en ${data.location} (${data.size}U)`);
+      toast('Rack creado');
+      if (!activeRackId) activeRackId = data.id;
+    }
+    persist();
+    closeRackModal();
+  }
+
+  function deleteRack(id) {
+    const r = racks.find(x => x.id === id);
+    if (!r) return;
+    const devs = getRackDevices(id);
+    const msg = devs.length > 0 
+      ? `¿Eliminar "${r.name}" y sus ${devs.length} equipos?`
+      : `¿Eliminar "${r.name}"?`;
+    if (!confirm(msg)) return;
+    
+    racks = racks.filter(x => x.id !== id);
+    devices = devices.filter(d => d.rackId !== id);
+    mappings = mappings.filter(m => {
+      const dev = devices.find(d => d.id === m.deviceId);
+      return dev !== undefined;
+    });
+    
+    if (activeRackId === id) activeRackId = racks.length > 0 ? racks[0].id : null;
+    
+    addLog(`🗑️ Rack eliminado: ${r.name}`);
+    toast('Rack eliminado', 'warning');
+    persist();
+  }
+
+  function selectRack(id) {
+    activeRackId = id;
+    localStorage.setItem('rackscope_active_rack', id);
+    renderAll();
+  }
+
+  // DASHBOARD
+  function renderDashboard() {
+    document.getElementById('kpi-racks').textContent = racks.length;
+    document.getElementById('kpi-equipos').textContent = devices.length;
+    document.getElementById('kpi-activos').textContent = devices.filter(d => d.status === 'active').length;
+    document.getElementById('kpi-mant').textContent = devices.filter(d => d.status === 'maintenance').length;
+
+    const overview = document.getElementById('racks-overview');
+    if (racks.length === 0) {
+      overview.innerHTML = `<div class="empty-state"><div class="empty-icon">🗄️</div><div class="empty-title">No hay racks creados</div><div>Crea tu primer rack para comenzar</div></div>`;
+      return;
+    }
+
+    overview.innerHTML = `<div class="racks-overview-grid">` + racks.map(r => {
+      const stats = getRackStats(r.id);
+      const color = stats.percent > 80 ? 'var(--danger)' : stats.percent > 50 ? 'var(--warning)' : 'var(--primary)';
+      return `
+        <div class="rack-overview-card" style="border-left-color: ${color};">
+          <div class="rack-overview-header">
+            <div class="rack-overview-name">🗄️ ${r.name}</div>
+          </div>
+          <div class="rack-overview-location">📍 ${r.location}</div>
+          <div class="rack-overview-stats">
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${stats.devices}</div>
+              <div class="rack-overview-stat-label">Equipos</div>
+            </div>
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${stats.used}/${stats.total}</div>
+              <div class="rack-overview-stat-label">U usadas</div>
+            </div>
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${stats.percent}%</div>
+              <div class="rack-overview-stat-label">Ocupación</div>
+            </div>
+          </div>
+          <div class="rack-progress">
+            <div class="rack-progress-bar" style="width: ${stats.percent}%; background: ${color};"></div>
+          </div>
+          <div class="rack-progress-label">
+            <span>✅ ${stats.active} activos</span>
+            <span>🔧 ${stats.maintenance} mant.</span>
+          </div>
+          <div class="rack-overview-actions">
+            <button class="btn btn-primary" style="background: var(--primary); color: white;" onclick="selectRack(${r.id}); switchTab('rack-view', document.querySelectorAll('.tab')[2]);">👁️ Ver</button>
+            <button class="btn btn-secondary" onclick="openRackModal(${r.id})">✏️ Editar</button>
+            <button class="btn btn-danger" onclick="deleteRack(${r.id})">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('') + `</div>`;
+  }
+
+  // RACKS TAB
+  function renderRacksGrid() {
+    const grid = document.getElementById('racks-grid');
+    if (racks.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-icon">🗄️</div><div class="empty-title">No hay racks creados</div><div>Crea tu primer rack para comenzar</div></div>`;
+      return;
+    }
+    grid.innerHTML = racks.map(r => {
+      const stats = getRackStats(r.id);
+      return `
+        <div class="rack-overview-card">
+          <div class="rack-overview-header">
+            <div>
+              <div class="rack-overview-name">🗄️ ${r.name}</div>
+              <div class="rack-overview-location">📍 ${r.location}</div>
+            </div>
+          </div>
+          ${r.description ? `<div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.75rem;">${r.description}</div>` : ''}
+          <div class="rack-overview-stats">
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${r.size}U</div>
+              <div class="rack-overview-stat-label">Tamaño</div>
+            </div>
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${stats.devices}</div>
+              <div class="rack-overview-stat-label">Equipos</div>
+            </div>
+            <div class="rack-overview-stat">
+              <div class="rack-overview-stat-value">${stats.percent}%</div>
+              <div class="rack-overview-stat-label">Ocupación</div>
+            </div>
+          </div>
+          <div class="rack-overview-actions">
+            <button class="btn btn-primary" style="background: var(--primary); color: white;" onclick="selectRack(${r.id}); switchTab('rack-view', document.querySelectorAll('.tab')[2]);">👁️ Ver</button>
+            <button class="btn btn-secondary" onclick="openRackModal(${r.id})">✏️ Editar</button>
+            <button class="btn btn-danger" onclick="deleteRack(${r.id})">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // RACK VIEW
+  function renderRackView() {
+    const container = document.getElementById('rack-view-content');
+    
+    if (racks.length === 0) {
+      container.innerHTML = `
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-icon">🗄️</div>
+            <div class="empty-title">No hay racks creados</div>
+            <div style="margin-bottom: 1rem;">Crea tu primer rack para comenzar</div>
+            <button class="btn btn-primary" onclick="openRackModal()">➕ Crear Rack</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (!activeRackId || !racks.find(r => r.id === activeRackId)) {
+      activeRackId = racks[0].id;
+    }
+
+    const rack = racks.find(r => r.id === activeRackId);
+    const rackDevices = getRackDevices(activeRackId);
+    const stats = getRackStats(activeRackId);
+
+    let selectorHtml = `<div class="rack-selector">`;
+    racks.forEach(r => {
+      const s = getRackStats(r.id);
+      selectorHtml += `
+        <div class="rack-selector-card ${r.id === activeRackId ? 'active' : ''}" onclick="selectRack(${r.id})">
+          <div class="rack-selector-name">🗄️ ${r.name}</div>
+          <div class="rack-selector-location">📍 ${r.location}</div>
+          <div class="rack-selector-stats">
+            <span>📦 ${s.devices} equipos</span>
+            <span>📊 ${s.percent}%</span>
+          </div>
+        </div>
+      `;
+    });
+    selectorHtml += `
+      <div class="rack-selector-card rack-selector-add" onclick="openRackModal()">
+        <div style="font-size: 1.5rem;">➕</div>
+        <div>Nuevo Rack</div>
+      </div>
+    </div>`;
+
+    const occupied = {};
+    rackDevices.forEach(d => {
+      for (let i = 0; i < d.height; i++) occupied[d.u + i] = d;
+    });
+
+    let unitsHtml = '';
+    for (let u = rack.size; u >= 1; u--) {
+      const dev = occupied[u];
+      if (dev && dev.u === u) {
+        const statusClass = dev.status === 'maintenance' ? 'maintenance' : dev.status === 'pending' ? 'pending' : 'occupied';
+        unitsHtml += `
+          <div class="rack-unit" style="grid-row: span ${dev.height};">
+            <div class="u-number">${u}</div>
+            <div class="u-slot ${statusClass}" onclick="editDevice(${dev.id})" style="min-height: ${dev.height * 28 + (dev.height-1)*2}px;" title="${getDeviceIdentifier(dev) || ''}">
+              <div class="u-slot-name">${getDeviceIcon(dev.type)} ${dev.name}</div>
+              <div class="u-slot-type">${dev.type} · ${dev.height}U</div>
+            </div>
+          </div>
+        `;
+      } else if (!dev) {
+        unitsHtml += `
+          <div class="rack-unit">
+            <div class="u-number">${u}</div>
+            <div class="u-slot" onclick="openDeviceModalWithU(${u})">
+              <span class="u-slot-empty">Libre — click para agregar</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    container.innerHTML = `
+      ${selectorHtml}
+      <div class="rack-layout">
+        <div class="rack-visual">
+          <div class="rack-header">
+            <div class="rack-title">
+              🗄️ ${rack.name}
+              <span class="rack-location-badge">📍 ${rack.location}</span>
+            </div>
+            <div class="rack-stats">
+              <div class="rack-stat">📏 <span>${stats.used}</span>/<span>${stats.total}</span> U</div>
+              <div class="rack-stat">📊 ${stats.percent}%</div>
+            </div>
+          </div>
+          <div class="rack-units">${unitsHtml}</div>
+        </div>
+        <div>
+          <div class="rack-legend">
+            <h3 style="margin-bottom: 1rem; font-size: 1rem;">🎨 Leyenda</h3>
+            <div class="legend-item">
+              <div class="legend-dot free"></div>
+              <div class="legend-label">Libre</div>
+              <div class="legend-count">${stats.total - stats.used}</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot active"></div>
+              <div class="legend-label">Activo</div>
+              <div class="legend-count">${stats.active}</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot maintenance"></div>
+              <div class="legend-label">Mantenimiento</div>
+              <div class="legend-count">${stats.maintenance}</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot pending"></div>
+              <div class="legend-label">Pendiente</div>
+              <div class="legend-count">${stats.pending}</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem; justify-content: center;" onclick="openDeviceModal()">
+            ➕ Agregar Equipo a este Rack
+          </button>
+          <button class="btn btn-secondary btn-lg" style="width: 100%; margin-top: 0.5rem; justify-content: center;" onclick="openRackModal(${rack.id})">
+            ✏️ Editar Rack
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // INVENTORY
+  function renderInventory() {
+    const filterSelect = document.getElementById('filter-rack');
+    const currentFilter = filterSelect.value;
+    filterSelect.innerHTML = '<option value="">Todos los racks</option>' + 
+      racks.map(r => `<option value="${r.id}">${r.name} (${r.location})</option>`).join('');
+    filterSelect.value = currentFilter;
+
+    const search = document.getElementById('search-inventory').value.toLowerCase();
+    const filterRack = filterSelect.value;
+    const tbody = document.getElementById('inventory-tbody');
+    
+    let filtered = devices.filter(d => {
+      const idStr = getDeviceIdentifier(d).toLowerCase();
+      const matchSearch = d.name.toLowerCase().includes(search) ||
+        d.type.toLowerCase().includes(search) ||
+        String(d.u).includes(search) ||
+        idStr.includes(search);
+      const matchRack = !filterRack || d.rackId === parseInt(filterRack);
+      return matchSearch && matchRack;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">${devices.length === 0 ? 'Sin equipos aún' : 'Sin resultados'}</div><div>${devices.length === 0 ? 'Agrega tu primer equipo' : 'Intenta con otra búsqueda'}</div></div></td></tr>`;
+      return;
+    }
+
+    const statusBadge = {
+      active: '<span class="badge badge-active"><span class="badge-dot"></span>Activo</span>',
+      maintenance: '<span class="badge badge-maintenance"><span class="badge-dot"></span>Mantenimiento</span>',
+      pending: '<span class="badge badge-pending"><span class="badge-dot"></span>Pendiente</span>'
+    };
+
+    tbody.innerHTML = filtered.map(d => {
+      const rack = racks.find(r => r.id === d.rackId);
+      const identifier = getDeviceIdentifier(d);
+      return `
+        <tr>
+          <td><strong>#${d.id}</strong></td>
+          <td>${rack ? rack.name : '—'}</td>
+          <td><strong>${d.name}</strong></td>
+          <td>${getDeviceIcon(d.type)} ${d.type}</td>
+          <td>${identifier ? `<span class="badge badge-id" title="${identifier}">🔖 ${identifier.length > 20 ? identifier.substring(0, 20) + '...' : identifier}</span>` : '<span style="color: var(--text-light);">—</span>'}</td>
+          <td>U${d.u}-${d.u + d.height - 1}</td>
+          <td>${statusBadge[d.status]}</td>
+          <td>${d.circuit || '—'}</td>
+          <td>
+            <button class="action-btn action-edit" onclick="editDevice(${d.id})">✏️</button>
+            <button class="action-btn action-delete" onclick="deleteDevice(${d.id})">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // MAPPING
+  function renderMappings() {
+    const tbody = document.getElementById('mapping-tbody');
+    if (mappings.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🔗</div><div class="empty-title">Sin mapeos</div><div>Relaciona puertos con servicios</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = mappings.map(m => {
+      const dev = devices.find(d => d.id === m.deviceId);
+      const rack = dev ? racks.find(r => r.id === dev.rackId) : null;
+      return `
+        <tr>
+          <td><strong>${m.port}</strong></td>
+          <td>${rack ? rack.name : '—'}</td>
+          <td>${dev ? dev.name : '—'}</td>
+          <td>${m.service}</td>
+          <td>${m.vlan || '—'}</td>
+          <td>
+            <button class="action-btn action-edit" onclick="editMapping(${m.id})">✏️</button>
+            <button class="action-btn action-delete" onclick="deleteMapping(${m.id})">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // MODAL DEVICE
+  function openDeviceModal() {
+    if (racks.length === 0) {
+      toast('Primero crea un rack', 'warning');
+      openRackModal();
+      return;
+    }
+    document.getElementById('device-modal').classList.add('active');
+    document.getElementById('device-modal-title').textContent = '➕ Agregar Equipo';
+    document.getElementById('device-form').reset();
+    document.getElementById('device-id').value = '';
+    document.getElementById('device-height').value = 1;
+    document.getElementById('custom-type-wrapper').classList.remove('active');
+    
+    const select = document.getElementById('device-rack');
+    select.innerHTML = racks.map(r => 
+      `<option value="${r.id}" ${r.id === activeRackId ? 'selected' : ''}>${r.name} — ${r.location} (${r.size}U)</option>`
+    ).join('');
+    
+    renderTypeSelect();
+    updateUMax();
+    select.onchange = updateUMax;
+  }
+
+  function updateUMax() {
+    const rackId = parseInt(document.getElementById('device-rack').value);
+    const rack = racks.find(r => r.id === rackId);
+    if (rack) {
+      document.getElementById('device-u').max = rack.size;
+      document.getElementById('device-height').max = rack.size;
+    }
+  }
+
+  function openDeviceModalWithU(u) {
+    openDeviceModal();
+    document.getElementById('device-u').value = u;
+  }
+
+  function closeDeviceModal() {
+    document.getElementById('device-modal').classList.remove('active');
+  }
+
+  function editDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    openDeviceModal();
+    document.getElementById('device-modal-title').textContent = '✏️ Editar Equipo';
+    document.getElementById('device-id').value = d.id;
+    document.getElementById('device-rack').value = d.rackId;
+    document.getElementById('device-name').value = d.name;
+    
+    // Si es un tipo personalizado, seleccionarlo
+    const typeSelect = document.getElementById('device-type');
+    const isCustom = !DEFAULT_TYPES.includes(d.type) && d.type !== '__CUSTOM__';
+    if (isCustom) {
+      // Asegurar que el tipo personalizado está en la lista
+      if (!customTypes.includes(d.type)) {
+        customTypes.push(d.type);
+        localStorage.setItem('rackscope_custom_types', JSON.stringify(customTypes));
+      }
+      renderTypeSelect();
+      typeSelect.value = d.type;
+    } else {
+      typeSelect.value = d.type;
+    }
+    
+    document.getElementById('device-u').value = d.u;
+    document.getElementById('device-height').value = d.height;
+    document.getElementById('device-status').value = d.status;
+    document.getElementById('device-mac').value = d.mac || '';
+    document.getElementById('device-serial').value = d.serial || '';
+    document.getElementById('device-circuit').value = d.circuit || '';
+    document.getElementById('device-service').value = d.service || '';
+    document.getElementById('device-validation').value = d.validation || 'CONFIRMADO';
+    updateUMax();
+    validateMac();
+  }
+
+  function saveDevice(e) {
+    e.preventDefault();
+    const id = document.getElementById('device-id').value;
+    const rackId = parseInt(document.getElementById('device-rack').value);
+    const rack = racks.find(r => r.id === rackId);
+    
+    let deviceType = document.getElementById('device-type').value;
+    
+    // Manejar tipo personalizado
+    if (deviceType === '__CUSTOM__') {
+      const customType = document.getElementById('device-custom-type').value.trim();
+      if (!customType) {
+        toast('Escribe un nombre para el tipo personalizado', 'error');
+        return;
+      }
+      deviceType = customType;
+      
+      // Guardar como favorito si se marcó
+      if (document.getElementById('save-as-favorite').checked) {
+        if (!customTypes.includes(customType)) {
+          customTypes.push(customType);
+          localStorage.setItem('rackscope_custom_types', JSON.stringify(customTypes));
+          toast(`Tipo "${customType}" guardado como favorito`, 'success');
+        }
+      }
+    }
+    
+    // Validar MAC si se proporcionó
+    const mac = document.getElementById('device-mac').value.trim();
+    if (mac && !validateMac()) {
+      toast('Formato de MAC inválido', 'error');
+      return;
+    }
+    
+    const data = {
+      id: id ? parseInt(id) : Date.now(),
+      rackId: rackId,
+      name: document.getElementById('device-name').value,
+      type: deviceType,
+      u: parseInt(document.getElementById('device-u').value),
+      height: parseInt(document.getElementById('device-height').value),
+      status: document.getElementById('device-status').value,
+      mac: mac,
+      serial: document.getElementById('device-serial').value.trim(),
+      circuit: document.getElementById('device-circuit').value,
+      service: document.getElementById('device-service').value,
+      validation: document.getElementById('device-validation').value
+    };
+
+    if (data.u + data.height - 1 > rack.size) {
+      toast(`El equipo excede el tamaño del rack (${rack.size}U)`, 'error');
+      return;
+    }
+
+    const rackDevices = getRackDevices(rackId);
+    const overlap = rackDevices.find(d => 
+      d.id !== data.id &&
+      ((data.u >= d.u && data.u < d.u + d.height) ||
+       (data.u + data.height > d.u && data.u <= d.u + d.height))
+    );
+    if (overlap) {
+      toast(`Conflicto: se superpone con "${overlap.name}"`, 'error');
+      return;
+    }
+
+    if (id) {
+      devices = devices.map(d => d.id === data.id ? data : d);
+      addLog(`✏️ Editado: ${data.name} en ${rack.name} U${data.u}`);
+      toast('Equipo actualizado');
+    } else {
+      devices.push(data);
+      addLog(`➕ Agregado: ${data.name} en ${rack.name} U${data.u} (${data.height}U)`);
+      toast('Equipo agregado');
+    }
+    persist();
+    closeDeviceModal();
+  }
+
+  function deleteDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    if (!confirm(`¿Eliminar "${d.name}"?`)) return;
+    devices = devices.filter(x => x.id !== id);
+    mappings = mappings.filter(m => m.deviceId !== id);
+    addLog(`🗑️ Eliminado: ${d.name}`);
+    toast('Equipo eliminado', 'warning');
+    persist();
+  }
+
+  // MODAL MAPPING
+  function openMappingModal() {
+    if (devices.length === 0) {
+      toast('Primero agrega equipos', 'warning');
+      return;
+    }
+    const select = document.getElementById('mapping-device');
+    select.innerHTML = '<option value="">Seleccionar equipo...</option>' + 
+      devices.map(d => {
+        const rack = racks.find(r => r.id === d.rackId);
+        return `<option value="${d.id}">${d.name} — ${rack ? rack.name : ''}</option>`;
+      }).join('');
+    document.getElementById('mapping-modal').classList.add('active');
+    document.getElementById('mapping-form').reset();
+    document.getElementById('mapping-id').value = '';
+  }
+
+  function closeMappingModal() { document.getElementById('mapping-modal').classList.remove('active'); }
+
+  function editMapping(id) {
+    const m = mappings.find(x => x.id === id);
+    if (!m) return;
+    openMappingModal();
+    document.getElementById('mapping-id').value = m.id;
+    document.getElementById('mapping-device').value = m.deviceId;
+    document.getElementById('mapping-port').value = m.port;
+    document.getElementById('mapping-service').value = m.service;
+    document.getElementById('mapping-vlan').value = m.vlan || '';
+  }
+
+  function saveMapping(e) {
+    e.preventDefault();
+    const id = document.getElementById('mapping-id').value;
+    const data = {
+      id: id ? parseInt(id) : Date.now(),
+      deviceId: parseInt(document.getElementById('mapping-device').value),
+      port: document.getElementById('mapping-port').value,
+      service: document.getElementById('mapping-service').value,
+      vlan: document.getElementById('mapping-vlan').value
+    };
+    if (id) {
+      mappings = mappings.map(m => m.id === data.id ? data : m);
+      addLog(`✏️ Mapeo editado: ${data.port}`);
+    } else {
+      mappings.push(data);
+      addLog(`➕ Mapeo agregado: ${data.port}`);
+    }
+    persist();
+    closeMappingModal();
+    toast('Mapeo guardado');
+  }
+
+  function deleteMapping(id) {
+    if (!confirm('¿Eliminar este mapeo?')) return;
+    mappings = mappings.filter(x => x.id !== id);
+    addLog(`🗑️ Mapeo eliminado`);
+    toast('Mapeo eliminado', 'warning');
+    persist();
+  }
+
+  // PERSISTENCE
+  function persist() {
+    localStorage.setItem('rackscope_racks', JSON.stringify(racks));
+    localStorage.setItem('rackscope_devices', JSON.stringify(devices));
+    localStorage.setItem('rackscope_mappings', JSON.stringify(mappings));
+    renderAll();
+  }
+
+  function renderAll() {
+    renderDashboard();
+    renderRacksGrid();
+    renderRackView();
+    renderInventory();
+    renderMappings();
+    renderLog();
+  }
+
+  function saveLocal() {
+    const data = { racks, devices, mappings, log, customTypes, date: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rackscope-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    toast('Copia descargada');
+  }
+
+  function loadLocal() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          racks = data.racks || [];
+          devices = data.devices || [];
+          mappings = data.mappings || [];
+          log = data.log || [];
+          customTypes = data.customTypes || [];
+          localStorage.setItem('rackscope_custom_types', JSON.stringify(customTypes));
+          persist();
+          toast('Copia cargada correctamente');
+        } catch (err) {
+          toast('Error al cargar archivo', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function resetAll() {
+    if (!confirm('¿Reiniciar TODO? Se perderán todos los datos.')) return;
+    racks = [];
+    devices = [];
+    mappings = [];
+    log = [];
+    customTypes = [];
+    activeRackId = null;
+    localStorage.removeItem('rackscope_racks');
+    localStorage.removeItem('rackscope_devices');
+    localStorage.removeItem('rackscope_mappings');
+    localStorage.removeItem('rackscope_log');
+    localStorage.removeItem('rackscope_custom_types');
+    localStorage.removeItem('rackscope_active_rack');
+    renderAll();
+    toast('Todo reiniciado', 'warning');
+  }
+
+  // INIT
+  renderAll();
+</script>
+
+</body>
+</html>
